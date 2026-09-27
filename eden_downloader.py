@@ -32,14 +32,18 @@ import webview
 import aktualisierung
 
 APP_NAME = "Eden.tools Downloader"
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.1.1"
 
 # Vor jedem yt_dlp-Import: selbst geholte yt-dlp-Fassungen vorziehen, alte EXE vom letzten Update weg.
 aktualisierung.reste_wegraeumen()
 aktualisierung.pakete_einhaengen()
 
-# itag 18 = 360p MP4 (Bild + Ton in EINER Datei) -> ideale, kleine Vorschau
-PREVIEW_FORMAT = "18/best[height<=480][ext=mp4]/best[height<=480]/best"
+# itag 18 = 360p MP4 (Bild + Ton in EINER Datei) -> ideale, kleine Vorschau.
+# YouTube liefert 18 inzwischen oft nicht mehr (nur noch getrennte Spuren),
+# dann H.264 + AAC bis 480p holen und per ffmpeg zu einer MP4 zusammenfuegen.
+PREVIEW_FORMAT = ("18/bv*[height<=480][vcodec^=avc1]+ba[ext=m4a]/"
+                  "bv*[height<=480][ext=mp4]+ba[ext=m4a]/"
+                  "b[height<=480][ext=mp4]/bv*[height<=480]+ba/b")
 
 _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
