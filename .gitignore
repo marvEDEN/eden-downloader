@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# PyInstaller
+build/
+dist/
+*.spec
+
+# Laufzeit
+web/_cache/
+fehler_log.txt
+
+# OS
+Thumbs.db
+.DS_Store

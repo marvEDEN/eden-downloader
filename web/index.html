@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eden.tools — Downloader</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-bg">
+  <div class="window">
+
+    <!-- titlebar (eigene Fensterleiste; Drag-Region zum Verschieben) -->
+    <div class="titlebar">
+      <span class="tb-title pywebview-drag-region">eden.tools · Downloader</span>
+      <div class="tb-controls">
+        <button class="win-btn" id="tb-min" title="Minimieren"><svg width="13" height="13" viewBox="0 0 14 14"><path d="M2 7h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
+        <button class="win-btn" id="tb-max" title="Maximieren"><svg width="12" height="12" viewBox="0 0 14 14"><rect x="2.2" y="2.2" width="9.6" height="9.6" rx="2" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></button>
+        <button class="win-btn win-close" id="tb-close" title="Schließen"><svg width="12" height="12" viewBox="0 0 14 14"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
+      </div>
+    </div>
+
+    <div class="layout">
+
+      <!-- ============ SIDEBAR ============ -->
+      <div class="sidebar">
+        <div class="brand">
+          <span class="edenmark" style="width:27px;height:27px;flex:none">
+            <div class="em-bezel"></div><div class="em-facet"></div><div class="em-core"></div><div class="em-sheen"></div>
+            <span class="em-mono"><i class="b1"></i><i class="b2"></i><i class="b3"></i><i class="b4"></i></span>
+          </span>
+          <span class="wordmark"><span class="w-eden">eden</span><span class="w-tools">.tools</span></span>
+        </div>
+
+        <div class="nav-item active" id="nav-new" data-view="new">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="M7 11l5 5 5-5"/><path d="M5 20h14"/></svg>
+          <span class="nav-label">Neuer Download</span>
+        </div>
+        <div class="nav-item" id="nav-queue" data-view="queue">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h12M4 12h12M4 18h8"/></svg>
+          <span class="nav-label">Warteschlange</span>
+          <span class="nav-badge hidden" id="queue-badge">0</span>
+        </div>
+        <div class="nav-item" id="nav-history" data-view="history">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>
+          <span class="nav-label">Verlauf</span>
+        </div>
+        <div class="nav-item" id="nav-settings" data-view="settings">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a1.6 1.6 0 00.3-1l2-1.5-2-3.4-2.3 1a7 7 0 00-1.7-1L16.5 3h-4l-.4 2.6a7 7 0 00-1.7 1l-2.3-1-2 3.4 2 1.5a7 7 0 000 2l-2 1.5 2 3.4 2.3-1a7 7 0 001.7 1l.4 2.6h4l.4-2.6a7 7 0 001.7-1l2.3 1 2-3.4-2-1.5z"/></svg>
+          <span class="nav-label">Einstellungen</span>
+        </div>
+
+        <div class="status-card" id="status-card">
+          <div class="sc-line"><span class="sc-dot"></span><span id="status-text">Alles bereit</span></div>
+          <div class="sc-sub" id="status-sub"></div>
+          <div class="sc-bar hidden" id="upd-bar"><i id="upd-fill"></i></div>
+          <button class="sc-btn hidden" id="upd-btn">Jetzt aktualisieren</button>
+        </div>
+      </div>
+
+      <!-- ============ CONTENT ============ -->
+      <div class="content">
+
+        <!-- ---------- NEUER DOWNLOAD ---------- -->
+        <div class="view" id="view-new">
+          <h2>Neuer Download</h2>
+          <p class="subline">Link einfügen — den Rest erledigen wir.</p>
+
+          <div class="link-field">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab0ba" stroke-width="1.7" stroke-linecap="round"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 015.7 5.7l-1 1"/><path d="M13 18l-1 1A4 4 0 016.3 13.3l1-1"/></svg>
+          <input id="url-input" placeholder="https://… — YouTube, Vimeo, TikTok"/>
+            <button class="btn-dark" id="paste-btn">Einfügen</button>
+          </div>
+
+          <!-- empty -->
+          <div class="empty" id="empty-state">
+            <div class="empty-h">Noch kein Link — füge oben einen ein oder probier ein Beispiel:</div>
+            <div class="empty-actions">
+              <button class="btn-example" id="ex-video">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.9"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M10 9l5 3-5 3z" fill="var(--accent)" stroke="none"/></svg>Einzelnes Video
+              </button>
+              <button class="btn-example" id="ex-playlist">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.9" stroke-linecap="round"><path d="M4 6h11M4 12h11M4 18h7"/><path d="M17 14v6l4-3z" fill="var(--accent)" stroke="none"/></svg>Playlist
+              </button>
+            </div>
+          </div>
+
+          <!-- detecting -->
+          <div class="detecting hidden" id="detecting">
+            <span class="spinner"></span><span>Link wird erkannt …</span>
+          </div>
+
+          <!-- detected -->
+          <div class="detected hidden" id="detected">
+            <div class="detected-head">
+              <div style="min-width:0;">
+                <div class="detected-title" id="detected-title"></div>
+                <div class="detected-meta" id="detected-meta"></div>
+              </div>
+              <button class="icon-btn" id="clear-btn" title="Verwerfen">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </button>
+            </div>
+
+            <!-- playlist choice -->
+            <div class="pl-banner hidden" id="playlist-banner">
+              <div class="pl-row">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.9" stroke-linecap="round"><path d="M4 6h11M4 12h11M4 18h7"/><path d="M17 14v6l4-3z" fill="var(--accent)" stroke="none"/></svg>
+                <span class="pl-text"><strong style="font-weight:700;">Playlist erkannt</strong> — <span id="pl-count">0</span> Videos. Was möchtest du laden?</span>
+              </div>
+              <div class="pl-actions">
+                <button class="btn-primary" id="choose-all">Ganze Playlist</button>
+                <button class="btn-ghost" id="choose-single">Nur dieses Video</button>
+              </div>
+            </div>
+
+            <!-- flow -->
+            <div class="hidden" id="flow">
+              <div class="mode-pill hidden" id="mode-pill">
+                <span id="mode-pill-label"></span><span class="change" id="mode-change">ändern</span>
+              </div>
+
+              <!-- preview player -->
+              <div class="player" id="player">
+                <div class="player-stage">
+                  <video id="preview-video" preload="metadata" playsinline></video>
+                  <button class="play-btn" id="play-btn">
+                    <svg id="ic-play" width="24" height="24" viewBox="0 0 24 24" fill="var(--accent)"><path d="M8 5v14l11-7z"/></svg>
+                    <svg id="ic-pause" class="hidden" width="22" height="22" viewBox="0 0 24 24" fill="var(--accent)"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+                  </button>
+                  <span class="badge-tl">Vorschau · direkt im Fenster</span>
+                  <span class="badge-br"><span id="ph-label">0:00</span> / <span id="dur-label">0:00</span></span>
+                  <div class="player-loading hidden" id="player-loading"><span class="spinner"></span><span>Vorschau wird geladen …</span></div>
+                </div>
+
+                <div class="player-controls">
+                  <div class="scrubber" id="pv-track">
+                    <div class="scrub-track"></div>
+                    <div class="scrub-trim" id="scrub-trim"></div>
+                    <div class="scrub-fill" id="scrub-fill"></div>
+                    <div class="scrub-playhead" id="scrub-playhead"></div>
+                    <div class="scrub-handle" id="handle-start"></div>
+                    <div class="scrub-handle" id="handle-end"></div>
+                  </div>
+
+                  <div class="controls-row">
+                    <div class="trim-left">
+                      <div class="toggle on" id="trim-toggle"><span class="knob"></span></div>
+                      <span class="trim-label">Nur ein Stück</span>
+                    </div>
+                    <div class="trim-right" id="trim-right">
+                      <span class="trim-range"><span id="start-label">0:00</span> – <span id="end-label">0:00</span></span>
+                      <button class="btn-trim" id="set-start">Start setzen</button>
+                      <button class="btn-trim" id="set-end">Ende setzen</button>
+                      <button class="btn-trim btn-add" id="add-seg" title="Diesen Bereich zur Liste hinzufügen">+ Bereich</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mehrfach-Zuschnitt -->
+              <div class="seg-panel hidden" id="seg-panel">
+                <div class="seg-mode">
+                  <div class="seg-mode-opt on" id="segmode-separate" data-mode="separate">Einzelne Clips</div>
+                  <div class="seg-mode-opt" id="segmode-remove" data-mode="remove">Bereiche entfernen</div>
+                </div>
+                <div class="seg-list" id="seg-list"></div>
+                <div class="seg-hint" id="seg-hint"></div>
+              </div>
+
+              <!-- format + quality -->
+              <div class="fmt-quality">
+                <div class="segment">
+                  <div class="seg-opt on" id="fmt-video">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg>Video
+                  </div>
+                  <div class="seg-opt" id="fmt-audio">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V6l10-2v12"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></svg>Nur Musik
+                  </div>
+                </div>
+                <div class="quality" id="quality">
+                  <div class="quality-btn" id="quality-btn">
+                    <span id="quality-label">Beste</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa1ab" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                  </div>
+                  <div class="quality-menu hidden" id="quality-menu">
+                    <div class="q-opt on" data-q="best"><div><div class="q-title">Beste</div><div class="q-sub">Höchste Auflösung</div></div><svg class="q-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-11"/></svg></div>
+                    <div class="q-opt" data-q="good"><div><div class="q-title">Gut · kleiner</div><div class="q-sub">720p — spart Platz</div></div><svg class="q-check hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-11"/></svg></div>
+                    <div class="q-opt" data-q="small"><div><div class="q-title">Platzsparend</div><div class="q-sub">480p — schnell</div></div><svg class="q-check hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-11"/></svg></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- folder -->
+              <div class="folder-row">
+                <div class="folder-left">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9aa1ab" stroke-width="1.7"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                  <span class="folder-path" id="folder-path">Downloads</span>
+                </div>
+                <button class="link-btn" id="change-folder">Ändern</button>
+              </div>
+
+              <button class="btn-download" id="download-btn">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="M7 11l5 5 5-5"/><path d="M5 20h14"/></svg>
+                <span id="download-label">Herunterladen</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- WARTESCHLANGE ---------- -->
+        <div class="view hidden" id="view-queue">
+          <h2 class="tight">Warteschlange</h2>
+          <div class="list-empty" id="queue-empty">Nichts in der Warteschlange. Starte einen Download unter „Neuer Download".</div>
+          <div id="queue-list"></div>
+        </div>
+
+        <!-- ---------- VERLAUF ---------- -->
+        <div class="view hidden" id="view-history">
+          <h2 class="tight">Verlauf</h2>
+          <div class="list-empty hidden" id="history-empty">Noch keine abgeschlossenen Downloads.</div>
+          <div id="history-list"></div>
+        </div>
+
+        <!-- ---------- EINSTELLUNGEN ---------- -->
+        <div class="view hidden" id="view-settings">
+          <h2 class="tight">Einstellungen</h2>
+          <div class="settings-list">
+            <div class="set-row">
+              <div><div class="set-title">Standard-Speicherort</div><div class="set-sub" id="set-folder-path">Downloads</div></div>
+              <button class="btn-outline" id="set-change-folder">Ändern</button>
+            </div>
+            <div class="set-row">
+              <div><div class="set-title">Nach dem Download Ordner öffnen</div><div class="set-sub">Zeigt die fertige Datei direkt an</div></div>
+              <div class="toggle on" id="toggle-openafter"><span class="knob"></span></div>
+            </div>
+            <div class="set-row">
+              <div><div class="set-title">Werkzeuge automatisch aktuell halten</div><div class="set-sub">Du musst nie etwas manuell installieren</div></div>
+              <div class="toggle on" id="toggle-auto"><span class="knob"></span></div>
+            </div>
+            <div class="set-row">
+              <div><div class="set-title">Version</div><div class="set-sub" id="set-version">…</div></div>
+              <button class="btn-outline" id="set-check">Nach Updates suchen</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

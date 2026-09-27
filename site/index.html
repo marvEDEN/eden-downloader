@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eden.tools — Downloader</title>
+<meta name="description" content="Eden.tools Downloader — Videos laden, Clips schneiden, ohne Schnickschnack. Für Windows.">
+<style>
+@font-face{font-family:'Founders';src:url('fonts/FoundersGroteskX-Condensed-Bold.otf') format('opentype');font-weight:700;font-display:block}
+@font-face{font-family:'Founders';src:url('fonts/FoundersGroteskX-Condensed-Semibold.otf') format('opentype');font-weight:600;font-display:block}
+@font-face{font-family:'InterTight';src:url('fonts/InterTight-Regular.ttf') format('truetype');font-weight:400;font-display:swap}
+@font-face{font-family:'InterTight';src:url('fonts/InterTight-Medium.ttf') format('truetype');font-weight:500;font-display:swap}
+@font-face{font-family:'InterTight';src:url('fonts/InterTight-SemiBold.ttf') format('truetype');font-weight:600;font-display:swap}
+@font-face{font-family:'InterTight';src:url('fonts/InterTight-Bold.ttf') format('truetype');font-weight:700;font-display:swap}
+
+:root{
+  --accent:#0fb3d6; --accent-logo:#0fa6c9;
+  --bg:#eef0f3; --card:#fff;
+  --ink:#16202b; --muted:#6a7280; --weak:#8a9099; --weaker:#9aa1ab;
+  --border:#e7e9ed; --border-2:#eceef1; --divider:#f1f3f5;
+  --success:#22c06a; --success-ink:#1f9d57;
+  --player:#161d27; --player-bar:#1e2733;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:'InterTight',system-ui,-apple-system,sans-serif;
+  color:var(--ink); background:var(--bg);
+  -webkit-font-smoothing:antialiased; line-height:1.5;
+}
+a{color:inherit; text-decoration:none}
+.wrap{max-width:1080px; margin:0 auto; padding:0 24px}
+
+/* header */
+header{position:sticky; top:0; z-index:10; background:rgba(238,240,243,.85); backdrop-filter:blur(8px); border-bottom:1px solid var(--border-2)}
+.bar{display:flex; align-items:center; justify-content:space-between; height:64px}
+.brand{display:flex; align-items:center; gap:10px}
+.wordmark{font-family:'Founders',sans-serif; font-weight:700; font-size:22px; line-height:1}
+.wordmark .a{color:var(--ink)} .wordmark .b{color:var(--accent-logo)}
+.nav-cta{display:inline-flex; align-items:center; gap:8px; background:var(--ink); color:#fff; font-weight:600; font-size:14px; padding:9px 16px; border-radius:11px}
+
+/* hero */
+.hero{display:grid; grid-template-columns:1.05fr .95fr; gap:40px; align-items:center; padding:64px 0 56px}
+.eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:var(--success-ink); background:rgba(34,192,106,.1); padding:6px 12px; border-radius:999px}
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--success)}
+h1{font-family:'Founders',sans-serif; font-weight:700; font-size:58px; line-height:1.02; letter-spacing:-.5px; margin:18px 0 14px}
+h1 .hl{color:var(--accent)}
+.lead{font-size:17px; color:var(--muted); max-width:30em; margin:0 0 26px}
+.cta-row{display:flex; align-items:center; gap:14px; flex-wrap:wrap}
+.btn-download{
+  display:inline-flex; align-items:center; gap:11px; background:var(--accent); color:#fff;
+  font-weight:600; font-size:17px; padding:15px 24px; border-radius:14px;
+  box-shadow:0 14px 30px -12px rgba(15,179,214,.8); transition:transform .12s, filter .12s;
+}
+.btn-download:hover{transform:translateY(-1px); filter:brightness(1.05)}
+.cta-meta{font-size:13px; color:var(--weaker)}
+.cta-meta b{color:var(--muted); font-weight:600}
+
+/* app window mock */
+.mock{
+  border-radius:16px; overflow:hidden; background:var(--card); border:1px solid var(--border);
+  box-shadow:0 40px 80px -36px rgba(20,30,45,.5);
+}
+.mock .tb{height:42px; display:flex; align-items:center; gap:8px; padding:0 14px; background:#f6f7f9; border-bottom:1px solid var(--border-2); font-size:12px; color:var(--weaker); font-weight:500}
+.mock .dots{display:flex; gap:6px}
+.mock .dots i{width:10px;height:10px;border-radius:50%;background:#dfe3e8;display:inline-block}
+.mock .body{display:flex; min-height:300px}
+.mock .side{width:150px; flex:none; background:#f7f8fa; border-right:1px solid var(--border-2); padding:14px 10px}
+.mock .navi{display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:9px; font-size:12.5px; color:var(--muted); font-weight:500; margin-bottom:3px}
+.mock .navi.on{background:#fff; border:1px solid #e3e6eb; color:var(--accent); font-weight:600}
+.mock .ico{width:14px;height:14px;border-radius:4px;background:currentColor;opacity:.5}
+.mock .navi.on .ico{opacity:1}
+.mock .main{flex:1; padding:18px}
+.mock h3{font-family:'Founders',sans-serif; font-weight:700; font-size:22px; margin:0 0 10px}
+.mock .field{display:flex; align-items:center; gap:8px; background:#f7f8fa; border:1px solid #e3e6eb; border-radius:11px; padding:8px 8px 8px 12px; font-size:12.5px; color:var(--weaker)}
+.mock .field .ins{margin-left:auto; background:var(--ink); color:#fff; font-size:11px; font-weight:600; padding:6px 11px; border-radius:8px}
+.mock .player{margin-top:12px; border-radius:12px; overflow:hidden; border:1px solid var(--border-2)}
+.mock .stage{height:118px; background:radial-gradient(120% 130% at 50% 25%,#23303f,#11171f); display:flex; align-items:center; justify-content:center}
+.mock .play{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center}
+.mock .play:after{content:"";border-left:13px solid var(--accent);border-top:8px solid transparent;border-bottom:8px solid transparent;margin-left:3px}
+.mock .ctrls{background:var(--player-bar); padding:10px 12px}
+.mock .scrub{height:5px;border-radius:999px;background:rgba(255,255,255,.16);position:relative}
+.mock .scrub .band{position:absolute;left:24%;width:30%;height:5px;border-radius:999px;background:var(--accent)}
+.mock .scrub .h1{position:absolute;left:24%;top:-6px;width:11px;height:17px;border-radius:4px;background:#fff;transform:translateX(-50%)}
+.mock .scrub .h2{position:absolute;left:54%;top:-6px;width:11px;height:17px;border-radius:4px;background:#fff;transform:translateX(-50%)}
+.mock .dlbtn{margin-top:14px;background:var(--accent);color:#fff;text-align:center;font-weight:600;font-size:13px;padding:11px;border-radius:11px}
+
+/* features */
+section.block{padding:30px 0 10px}
+.sec-title{font-family:'Founders',sans-serif; font-weight:700; font-size:34px; text-align:center; margin:0 0 8px}
+.sec-sub{text-align:center; color:var(--muted); margin:0 auto 34px; max-width:34em}
+.grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px}
+.feat{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:22px}
+.feat .badge{width:40px;height:40px;border-radius:11px;background:rgba(15,179,214,.1);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.feat .badge svg{stroke:var(--accent)}
+.feat h4{font-size:16px; margin:0 0 6px}
+.feat p{font-size:14px; color:var(--muted); margin:0}
+
+/* install / smartscreen */
+.install{background:var(--card); border:1px solid var(--border); border-radius:18px; padding:28px; margin-top:30px}
+.install h3{font-family:'Founders',sans-serif; font-weight:700; font-size:24px; margin:0 0 6px}
+.steps{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:18px}
+.step{display:flex; gap:12px}
+.step .n{flex:none;width:26px;height:26px;border-radius:50%;background:rgba(15,179,214,.12);color:var(--accent);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+.step p{margin:0;font-size:13.5px;color:var(--muted)}
+.step b{color:var(--ink)}
+.note{margin-top:18px;font-size:13px;color:var(--weak);background:var(--divider);border-radius:11px;padding:12px 14px}
+
+/* footer */
+footer{margin-top:48px;border-top:1px solid var(--border-2);padding:26px 0 40px;color:var(--weaker);font-size:13px}
+.foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+
+/* EdenMark logo */
+.em{position:relative;display:inline-block;width:28px;height:28px;flex:none}
+.em>div{position:absolute;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.em .bz{inset:0;background:linear-gradient(135deg,#7c571c,#c39c4c 22%,#fff6db 46%,#efe0a8 55%,#c39c4c 74%,#7c571c);box-shadow:0 0 14px -4px rgba(56,225,255,.42)}
+.em .fc{inset:5.5%;background:linear-gradient(160deg,rgba(180,245,255,.9),rgba(56,225,255,.55))}
+.em .co{inset:8.5%;background:radial-gradient(72% 70% at 50% 40%,#0c2336,#06121f 54%,#03080f)}
+.em .mo{position:absolute;left:30%;top:25.5%;width:40%;height:49%;clip-path:none;filter:drop-shadow(0 0 5px rgba(56,225,255,.6))}
+.em .mo i{position:absolute;border-radius:2px;background:linear-gradient(180deg,#fff,#d6f3ff)}
+.em .mo .b1{left:0;top:0;width:25%;height:100%}
+.em .mo .b2{left:0;top:0;width:100%;height:25%}
+.em .mo .b3{left:0;top:37.5%;width:72%;height:25%;background:#9fe9ff}
+.em .mo .b4{left:0;bottom:0;width:100%;height:25%}
+
+@media (max-width:840px){
+  .hero{grid-template-columns:1fr; gap:30px; padding:40px 0}
+  h1{font-size:42px}
+  .grid,.steps{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <div class="brand">
+      <span class="em"><div class="bz"></div><div class="fc"></div><div class="co"></div><span class="mo"><i class="b1"></i><i class="b2"></i><i class="b3"></i><i class="b4"></i></span></span>
+      <span class="wordmark"><span class="a">eden</span><span class="b">.tools</span></span>
+    </div>
+    <a class="nav-cta" href="#download">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="M7 11l5 5 5-5"/><path d="M5 20h14"/></svg>
+      Herunterladen
+    </a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero" id="download">
+    <div>
+      <span class="eyebrow"><span class="dot"></span>Für Windows · kostenlos</span>
+      <h1>Videos laden.<br><span class="hl">Clips</span> schneiden.<br>Ohne Schnickschnack.</h1>
+      <p class="lead">Der eden.tools Downloader holt Videos und Playlists als MP4 oder MP3 — mit Vorschau direkt im Fenster und präzisem Zuschnitt. Einfügen, markieren, fertig.</p>
+      <div class="cta-row">
+        <a class="btn-download" href="downloads/Eden-Downloader.exe" download>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="M7 11l5 5 5-5"/><path d="M5 20h14"/></svg>
+          Für Windows herunterladen
+        </a>
+        <span class="cta-meta"><b>Windows 10/11</b> · 64-bit · keine Installation nötig</span>
+      </div>
+    </div>
+
+    <!-- App-Mock -->
+    <div class="mock" aria-hidden="true">
+      <div class="tb"><span class="dots"><i></i><i></i><i></i></span><span style="margin-left:6px">eden.tools · Downloader</span></div>
+      <div class="body">
+        <div class="side">
+          <div class="navi on"><span class="ico"></span>Neuer Download</div>
+          <div class="navi"><span class="ico"></span>Warteschlange</div>
+          <div class="navi"><span class="ico"></span>Verlauf</div>
+          <div class="navi"><span class="ico"></span>Einstellungen</div>
+        </div>
+        <div class="main">
+          <h3>Neuer Download</h3>
+          <div class="field">https://… — YouTube, Vimeo, TikTok <span class="ins">Einfügen</span></div>
+          <div class="player">
+            <div class="stage"><span class="play"></span></div>
+            <div class="ctrls">
+              <div class="scrub"><span class="band"></span><span class="h1"></span><span class="h2"></span></div>
+            </div>
+          </div>
+          <div class="dlbtn">Ausschnitt herunterladen</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="block">
+    <h2 class="sec-title">Alles drin, nichts im Weg</h2>
+    <p class="sec-sub">Die wichtigsten Funktionen — freundlich verpackt, ohne technisches Kauderwelsch.</p>
+    <div class="grid">
+      <div class="feat">
+        <div class="badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 015.7 5.7l-1 1"/><path d="M13 18l-1 1A4 4 0 016.3 13.3l1-1"/></svg></div>
+        <h4>Link rein, Rest automatisch</h4>
+        <p>Titel, Kanal und Dauer werden sofort erkannt. Playlists fragt die App nach: ganze Liste oder nur dieses Video.</p>
+      </div>
+      <div class="feat">
+        <div class="badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.9"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg></div>
+        <h4>Vorschau mit Ton</h4>
+        <p>Das Video läuft direkt im Fenster. Spul zur richtigen Stelle und markiere deinen Ausschnitt mit ziehbaren Griffen.</p>
+      </div>
+      <div class="feat">
+        <div class="badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h16M4 12h10M4 17h7"/></svg></div>
+        <h4>Mehrere Clips & Bereiche</h4>
+        <p>Schneide mehrere Stücke als einzelne Clips — oder entferne Bereiche (z. B. Werbung) und lade den Rest als ein Video.</p>
+      </div>
+      <div class="feat">
+        <div class="badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.9"><path d="M9 18V6l10-2v12"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></svg></div>
+        <h4>Video oder nur Musik</h4>
+        <p>MP4 in Top-Qualität oder MP3 als reine Tonspur. Qualität wählbar: Beste, 720p oder platzsparend.</p>
+      </div>
+      <div class="feat">
+        <div class="badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round"><path d="M4 6h12M4 12h12M4 18h8"/></svg></div>
+        <h4>Warteschlange & Verlauf</h4>
+        <p>Live-Fortschritt für jeden Download, fertige Dateien landen im Verlauf — ein Klick öffnet den Ordner.</p>
+      </div>
+      <div class="feat">
+        <div class="badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19 13a1.6 1.6 0 00.3-1l2-1.5-2-3.4-2.3 1a7 7 0 00-1.7-1L16.5 3h-4l-.4 2.6a7 7 0 00-1.7 1l-2.3-1-2 3.4 2 1.5a7 7 0 000 2l-2 1.5 2 3.4 2.3-1a7 7 0 001.7 1l.4 2.6h4l.4-2.6a7 7 0 001.7-1l2.3 1 2-3.4-2-1.5z"/></svg></div>
+        <h4>Läuft einfach</h4>
+        <p>Werkzeuge und Updates laufen im Hintergrund. Du musst nichts installieren oder konfigurieren.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTALL / SMARTSCREEN -->
+  <section class="block">
+    <div class="install">
+      <h3>Loslegen in drei Schritten</h3>
+      <div class="steps">
+        <div class="step"><span class="n">1</span><p><b>Herunterladen</b> und die Datei doppelklicken.</p></div>
+        <div class="step"><span class="n">2</span><p>Beim ersten Start zeigt Windows evtl. einen blauen Hinweis: <b>„Weitere Informationen" → „Trotzdem ausführen"</b>.</p></div>
+        <div class="step"><span class="n">3</span><p>Link einfügen, Format wählen, <b>herunterladen</b>. Fertig.</p></div>
+      </div>
+      <div class="note">Hinweis: Die App ist (noch) nicht mit einem kostenpflichtigen Zertifikat signiert — daher der Windows-Hinweis beim ersten Start. Das ist normal und unbedenklich.</div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div>© <span id="yr"></span> eden.tools — „Deine Werkzeugkammer"</div>
+    <div>Bitte nur Inhalte laden, an denen du die Rechte hast oder deren Lizenz das erlaubt.</div>
+  </div>
+</footer>
+
+<script>document.getElementById('yr').textContent=new Date().getFullYear();</script>
+</body>
+</html>
