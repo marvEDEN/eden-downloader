@@ -32,7 +32,7 @@ import webview
 import aktualisierung
 
 APP_NAME = "Eden.tools Downloader"
-APP_VERSION = "1.1.1"
+APP_VERSION = "1.1.2"
 
 # Vor jedem yt_dlp-Import: selbst geholte yt-dlp-Fassungen vorziehen, alte EXE vom letzten Update weg.
 aktualisierung.reste_wegraeumen()

@@ -48,10 +48,10 @@
     hue = hue || 200;
     return "linear-gradient(135deg,hsl(" + hue + " 42% 32%),hsl(" + ((hue + 40) % 360) + " 48% 22%))";
   }
-  function toast(msg) {
+  function toast(msg, ms) {
     var t = $("toast"); if (!t) return;
     t.textContent = msg; t.classList.add("show");
-    clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove("show"); }, 2800);
+    clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove("show"); }, ms || 2800);
   }
 
   // ---------- api readiness ----------
@@ -161,9 +161,14 @@
         try { v.load(); } catch (e) {}
         positionScrub();
       } else {
-        toast("Vorschau nicht verfügbar – Zeiten kannst du trotzdem setzen.");
+        var why = String((r && r.error) || "").replace(/^ERROR:\s*/, "").slice(0, 180);
+        toast("Vorschau nicht verfügbar – Zeiten kannst du trotzdem setzen." +
+              (why ? "\nGrund: " + why : ""), why ? 9000 : 2800);
       }
-    }).catch(function () { show($("player-loading"), false); });
+    }).catch(function (e) {
+      show($("player-loading"), false);
+      toast("Vorschau nicht verfügbar.\nGrund: " + String(e && e.message || e).slice(0, 180), 9000);
+    });
   }
 
   function pct(x) { if (!S.duration) return 0; return Math.max(0, Math.min(100, x / S.duration * 100)); }
@@ -426,6 +431,12 @@
     v.addEventListener("play", function () { show($("ic-play"), false); show($("ic-pause"), true); });
     v.addEventListener("pause", function () { show($("ic-play"), true); show($("ic-pause"), false); });
     v.addEventListener("timeupdate", positionScrub);
+    v.addEventListener("error", function () {
+      if (!v.getAttribute("src")) return;
+      var c = v.error ? v.error.code : "?";
+      toast("Vorschau geladen, aber nicht abspielbar (Fehler " + c +
+            "). Fehlt das Windows-Medienfeature-Paket?", 9000);
+    });
     v.addEventListener("loadedmetadata", function () {
       if (v.duration && isFinite(v.duration)) {
         S.duration = v.duration;

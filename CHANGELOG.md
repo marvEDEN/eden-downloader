@@ -3,6 +3,10 @@
 Jeder Abschnitt `## <version>` wird beim Veröffentlichen zu den Notizen des Releases.
 Die App zeigt sie beim Update an.
 
+## 1.1.2
+
+- Klappt die Vorschau nicht, steht jetzt der Grund dabei – statt nur „Vorschau nicht verfügbar“.
+
 ## 1.1.1
 
 - Vorschau funktioniert wieder: YouTube liefert die kleine Vorschau-Datei nicht mehr fertig, Bild und Ton werden jetzt getrennt geholt und zusammengefügt.
